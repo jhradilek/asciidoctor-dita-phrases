@@ -37,7 +37,7 @@ opt_title = 'Product attributes'
 
 # Configure the option parser:
 parser = OptionParser.new do |opt|
-  opt.banner  = "Usage: #{NAME} [-g GUID] [-i ID] [-t TITLE] FILE\n"
+  opt.banner  = "Usage: #{NAME} [-i ID] [-t TITLE] FILE\n"
   opt.banner += "       #{NAME} -h|-v\n\n"
 
   opt.on('-i', '--id=ID', 'specify the topic id') do |id|
@@ -72,7 +72,13 @@ args = parser.parse!
 file = args[0]
 
 # Verify the number of comman-line arguments:
-abort "#{NAME}: Invalid number of arguments" if args.length != 1
+if args.length == 0
+  puts parser.banner
+  puts "Run '#{NAME} -h' for more information"
+  exit 1
+elsif args.length != 1
+  abort "#{NAME}: Invalid number of arguments"
+end
 
 # Verify that the supplied file exists and is readable:
 abort "#{NAME}: File does not exist: #{file}" if not File.exist? file
