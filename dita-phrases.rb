@@ -41,19 +41,25 @@ parser = OptionParser.new do |opt|
   opt.banner += "       #{NAME} -h|-v\n\n"
 
   opt.on('-i', '--id=ID', 'specify the topic id') do |id|
+    # Verify that the supplied string is a valid XML ID:
+    abort "#{NAME}: Invalid XML ID: #{id}" if id !~ /^[A-Za-z:_][A-Za-z0-9:._-]*$/
     opt_id = id
   end
 
   opt.on('-t', '--title=TITLE', 'specify the topic title') do |title|
+    # Verify that the supplied string does not contain XML tags:
+    abort "#{NAME}: XML tags not allowed: #{title}" if title =~ /[<>]/
     opt_title = title
   end
 
   opt.on('-h', '--help', 'display this help and exit') do
+    # Print usage information to standard output and exit:
     puts opt
     exit
   end
 
   opt.on('-v', '--version', 'display version information and exit') do
+    # Print version information to standard output and exit:
     puts "#{NAME} #{VERSION}"
     exit
   end
