@@ -101,7 +101,11 @@ result << %(    <ul>)
 
 # Process document attributes:
 attributes.each do |attr, value|
-  result <<%(      <li><ph id="#{attr}">#{value}</ph></li>) if not built_in.key? attr.downcase
+  # Skip built-in attributes:
+  next if built_in.key? attr.downcase
+
+  # Skip attributes that do not have a value:
+  result <<%(      <li><ph id="#{attr}">#{value}</ph></li>) if not value.empty?
 end
 
 # Compose the document footer:
