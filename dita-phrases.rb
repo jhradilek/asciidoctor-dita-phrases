@@ -91,13 +91,15 @@ result << %(<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.d
 result << %(<concept id="#{opt_id}">)
 result << %(  <title>#{opt_title}</title>)
 result << %(  <conbody>)
+result << %(    <ul>)
 
 # Process document attributes:
 attributes.each do |attr, value|
-  result <<%(    <p><ph id="#{attr}">#{value}</ph></p>) if not built_in.key? attr.downcase
+  result <<%(      <li><ph id="#{attr}">#{value}</ph></li>) if not built_in.key? attr.downcase
 end
 
 # Compose the document footer:
+result << %(    </ul>)
 result << %(  </conbody>)
 result << %(</concept>)
 
