@@ -25,6 +25,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 require 'asciidoctor'
+require 'dita-topic'
 require 'optparse'
 
 # Genral information about the script:
@@ -86,10 +87,10 @@ abort "#{NAME}: Not a file: #{file}" if not File.file? file
 abort "#{NAME}: File not readable: #{file}" if not File.readable? file
 
 # Get the list of built-in attributes:
-built_in = Asciidoctor.load('', safe: :safe).attributes
+built_in = Asciidoctor.load('', safe: :safe, backend: 'dita-topic').attributes
 
 # Parse the supplied file:
-attributes = Asciidoctor.load(File.read(file), safe: :safe).attributes
+attributes = Asciidoctor.load(File.read(file), safe: :safe, backend: 'dita-topic').attributes
 
 # Compose the document header:
 result = [%(<?xml version='1.0' encoding='utf-8' ?>)]
@@ -105,7 +106,13 @@ attributes.each do |attr, value|
   next if built_in.key? attr.downcase
 
   # Skip attributes that do not have a value:
-  result <<%(      <li><ph id="#{attr}">#{value}</ph></li>) if not value.empty?
+  next if value.empty?
+
+  # Convert the attribute value to DITA:
+  converted = Asciidoctor.convert(value, standalone: false, backend: 'dita-topic', attributes: 'experimental').gsub(/<\/?p>/, '')
+
+  # Compose the phrase line:
+  result <<%(      <li><ph id="#{attr}">#{converted}</ph></li>)
 end
 
 # Compose the document footer:
