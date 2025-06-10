@@ -29,7 +29,7 @@ require 'dita-topic'
 require 'optparse'
 
 # Genral information about the script:
-VERSION   = '0.1.0'
+VERSION   = '0.2.0'
 NAME      = File.basename($0)
 
 # Set the default options:
