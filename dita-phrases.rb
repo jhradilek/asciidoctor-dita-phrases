@@ -29,7 +29,7 @@ require 'dita-topic'
 require 'optparse'
 
 # Genral information about the script:
-VERSION   = '0.2.0'
+VERSION   = '0.2.1'
 NAME      = File.basename($0)
 
 # Set the default options:
@@ -48,9 +48,7 @@ parser = OptionParser.new do |opt|
   end
 
   opt.on('-t', '--title=TITLE', 'specify the topic title') do |title|
-    # Verify that the supplied string does not contain XML tags:
-    abort "#{NAME}: XML tags not allowed: #{title}" if title =~ /[<>]/
-    opt_title = title
+    opt_title = title.encode(:xml => :text)
   end
 
   opt.on('-h', '--help', 'display this help and exit') do
