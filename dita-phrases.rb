@@ -29,12 +29,13 @@ require 'dita-topic'
 require 'optparse'
 
 # Genral information about the script:
-VERSION   = '0.2.1'
-NAME      = File.basename($0)
+VERSION    = '0.3.0'
+NAME       = File.basename($0)
 
 # Set the default options:
-opt_id    = 'product-attributes'
-opt_title = 'Product attributes'
+opt_id     = 'product-attributes'
+opt_title  = 'Product attributes'
+opt_header = true
 
 # Configure the option parser:
 parser = OptionParser.new do |opt|
@@ -49,6 +50,10 @@ parser = OptionParser.new do |opt|
 
   opt.on('-t', '--title=TITLE', 'specify the topic title') do |title|
     opt_title = title.encode(:xml => :text)
+  end
+
+  opt.on('-s', '--no-header-footer', 'do not create the document structure') do
+    opt_header = false
   end
 
   opt.on('-h', '--help', 'display this help and exit') do
@@ -91,12 +96,16 @@ built_in = Asciidoctor.load('', safe: :safe, backend: 'dita-topic').attributes
 attributes = Asciidoctor.load(File.read(file), safe: :safe, backend: 'dita-topic').attributes
 
 # Compose the document header:
-result = [%(<?xml version='1.0' encoding='utf-8' ?>)]
-result << %(<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">)
-result << %(<concept id="#{opt_id}">)
-result << %(  <title>#{opt_title}</title>)
-result << %(  <conbody>)
-result << %(    <ul>)
+if opt_header
+  result = [%(<?xml version='1.0' encoding='utf-8' ?>)]
+  result << %(<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "concept.dtd">)
+  result << %(<concept id="#{opt_id}">)
+  result << %(  <title>#{opt_title}</title>)
+  result << %(  <conbody>)
+  result << %(    <ul>)
+else
+  result = []
+end
 
 # Process document attributes:
 attributes.each do |attr, value|
@@ -110,13 +119,19 @@ attributes.each do |attr, value|
   converted = Asciidoctor.convert(value, standalone: false, backend: 'dita-topic', attributes: 'experimental').gsub(/<\/?p>/, '')
 
   # Compose the phrase line:
-  result <<%(      <li><ph id="#{attr}">#{converted}</ph></li>)
+  if opt_header
+    result << %(      <li><ph id="#{attr}">#{converted}</ph></li>)
+  else
+    result << %(<ph id="#{attr}">#{converted}</ph>)
+  end
 end
 
 # Compose the document footer:
-result << %(    </ul>)
-result << %(  </conbody>)
-result << %(</concept>)
+if opt_header
+  result << %(    </ul>)
+  result << %(  </conbody>)
+  result << %(</concept>)
+end
 
 # Print the document to standard output:
 puts result
